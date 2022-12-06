@@ -10,9 +10,11 @@ WORKDIR /usr/src/app
 # COPY Pipfile Pipfile.lock script.sh ./
 COPY . .
 
+ENV FLASK_APP=main.py
+
 # Install API dependencies
 RUN pipenv install --system --deploy
 
 # Start app
 EXPOSE 8000
-ENTRYPOINT ["/usr/src/app/script.sh"]
+ENTRYPOINT ["pipenv run flask --debug run -h 0.0.0.0 -p 8000"]
