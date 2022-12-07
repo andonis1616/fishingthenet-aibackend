@@ -19,32 +19,24 @@ def get_predictions(text):
     sequence = pad_sequences(sequence, maxlen=SEQUENCE_LENGTH)
     # get the prediction
     prediction = new_model.predict(sequence)
-    print(prediction)
     if prediction >0.50:
-        return 'Phishing'
+        return 'Phishing', prediction
     else:
-        return 'Not Phishing'
+        return 'Not Phishing', prediction
 
 fileObj = open('token.tnk', 'rb')
 tokenizer = pickle.load(fileObj)
 fileObj.close()
 new_model = keras.models.load_model('SavedModel.h5')
 
-# @app.route('/body/<id>', methods=['GET'])
-# def get_incomes():
-#     if request.method == 'GET':
-#         id = escape(id)
-#         return jsonify(id)
-#     return None
-
-
-@app.route('/body/<text>', methods=['POST'])
+@app.route('/body', methods=['POST'])
 def add_income():
-    # Json: {
-    # "sender" : "",
-    # "subject" : "",
-    # "content" : "",
-    # }
     if request.method == 'POST':
-        return jsonify(get_predictions(text))
+        json = request.get_json()
+        isPhishing, procentage = get_predictions(json['content'])
+        new_object = {
+            "isPhishing" : isPhishing,
+            "procentage" : float(procentage[0][0])
+        }
+        return jsonify(new_object)
     return None
